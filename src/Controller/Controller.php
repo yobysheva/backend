@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Services\ServicesCSV;
 
@@ -29,7 +30,7 @@ final class Controller extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
-        $csvService->addBooking(
+        $this->csvService->addBooking(
             $data['houseId'] ?? null,
             $data['phone'] ?? null,
             $data['comment'] ?? null

@@ -11,6 +11,7 @@ class ServicesCSV{
         $data = [];
 
         while (($row = fgetcsv($file)) !==  false){
+            $row = array_map(fn($cell) => mb_convert_encoding($cell, 'UTF-8', 'CP1251'), $row);
             $data[] = array_combine($header, $row);
         }
         
@@ -20,8 +21,32 @@ class ServicesCSV{
     }
 
     public function addBooking($houseId, $phone, $comment) : void{
-        $file = fopen(__DIR__.'booking.csv', 'a');
-        fputcsv($file, [$houseId, $phone, $comment]);
+        $filePath = __DIR__ . '/booking.csv';
+        if (!file_exists($filePath)) {
+            file_put_contents($filePath, "id,houseId,phone,comment\n");
+        }
+        $currentId = 0;
+        if (($file = fopen($filePath, 'r')) !== false) {
+            fgetcsv($file);
+            while (($row = fgetcsv($file)) !== false) {
+                $id = (int)$row[0];
+                if ($id > $currentId) {
+                    $currentId = $id;
+                }
+            }
+            fclose($file);
+        }
+
+        $nextId = $currentId + 1;
+
+        $file = fopen($filePath, 'a');
+        $houseId  = mb_convert_encoding($houseId, 'UTF-8');
+        $phone    = mb_convert_encoding($phone, 'UTF-8');
+        $comment  = mb_convert_encoding($comment, 'UTF-8');
+
+        fputcsv($file, [$nextId, $houseId, $phone, $comment]);
         fclose($file);
     }
+    
+
 }
