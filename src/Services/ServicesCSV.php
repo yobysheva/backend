@@ -4,7 +4,13 @@ namespace App\Services;
 
 class ServicesCSV{
     public function getAllHouses() : array{
-        $file = fopen(__DIR__ .'/houses.csv', 'r');
+        $filePath = __DIR__ . '/houses.csv';
+
+        $file = fopen($filePath, 'r');;
+        if (!$file) {
+            throw new \RuntimeException("Can not open file $filePath for reading.");
+    
+        }
 
         $header = fgetcsv($file);
 
@@ -20,12 +26,15 @@ class ServicesCSV{
         return $data;
     }
 
-    public function addBooking($houseId, $phone, $comment) : void{
+    public function addBooking($houseId, $phone, $comment) : int{
         $filePath = __DIR__ . '/booking.csv';
+
         if (!file_exists($filePath)) {
             file_put_contents($filePath, "id,houseId,phone,comment\n");
         }
+
         $currentId = 0;
+
         if (($file = fopen($filePath, 'r')) !== false) {
             fgetcsv($file);
             while (($row = fgetcsv($file)) !== false) {
@@ -46,7 +55,49 @@ class ServicesCSV{
 
         fputcsv($file, [$nextId, $houseId, $phone, $comment]);
         fclose($file);
+
+        return $nextId;
     }
-    
+
+    public function editBookingCommentById($targetId, $newComment) : void{
+        $filePath = __DIR__ . '/booking.csv';
+
+        $file = fopen($filePath, 'r+');
+        if (!$file) {
+            throw new \RuntimeException("Can not open file $filePath for editing.");
+        }
+
+        $header = fgetcsv($file);
+        $rows = [];
+        $found = false;
+
+
+        while (($row = fgetcsv($file)) !== false) {
+                $id = (int)$row[0];
+                if ($id == $targetId) {
+                    $row[3] = $newComment;
+                    $found = true;
+                }
+                $rows[] = $row;
+            }
+
+        
+
+        if (!$found){
+            throw new \RuntimeException("Booking Id $targetId not found");
+        }
+
+        rewind($file);
+        ftruncate($file, 0);
+
+        fputcsv($file, $header);
+
+        foreach ($rows as $row){
+            fputcsv($file, $row);
+        }
+
+
+        fclose($file);
+    }
 
 }
