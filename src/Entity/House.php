@@ -20,10 +20,10 @@ class House
     private ?int $line = null;
 
     #[ORM\Column]
-    private ?bool $bathroom = null;
+    private ?bool $bathroom = false;
 
     #[ORM\Column]
-    private ?bool $shower = null;
+    private ?bool $shower = false;
 
     #[ORM\OneToOne(mappedBy: 'currentHouse', cascade: ['persist', 'remove'])]
     private ?User $user_for_house = null;

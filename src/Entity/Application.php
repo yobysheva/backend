@@ -21,6 +21,11 @@ class Application
     #[ORM\JoinColumn(nullable: false)]
     private ?House $wanted_house = null;
 
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
     public function getApplicant(): ?User
     {
         return $this->applicant;

@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20251105133737 extends AbstractMigration
+final class Version20251106032837 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -20,12 +20,12 @@ final class Version20251105133737 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
+        $this->addSql('CREATE TABLE app_user (id SERIAL NOT NULL, current_house_id INT DEFAULT NULL, name VARCHAR(255) NOT NULL, phone VARCHAR(20) NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE UNIQUE INDEX UNIQ_88BDF3E9F6CF3F3F ON app_user (current_house_id)');
+        $this->addSql('CREATE TABLE application (id SERIAL NOT NULL, applicant_id INT NOT NULL, wanted_house_id INT NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE INDEX IDX_A45BDDC197139001 ON application (applicant_id)');
+        $this->addSql('CREATE INDEX IDX_A45BDDC1D2F45EC0 ON application (wanted_house_id)');
         $this->addSql('CREATE TABLE house (id SERIAL NOT NULL, spaciousness INT NOT NULL, line INT NOT NULL, bathroom BOOLEAN NOT NULL, shower BOOLEAN NOT NULL, PRIMARY KEY(id))');
-        $this->addSql('CREATE TABLE request (id SERIAL NOT NULL, applicant_id INT NOT NULL, wanted_house_id INT NOT NULL, PRIMARY KEY(id))');
-        $this->addSql('CREATE INDEX IDX_3B978F9F97139001 ON request (applicant_id)');
-        $this->addSql('CREATE INDEX IDX_3B978F9FD2F45EC0 ON request (wanted_house_id)');
-        $this->addSql('CREATE TABLE "user" (id SERIAL NOT NULL, сcurrent_house_id INT DEFAULT NULL, name VARCHAR(255) NOT NULL, phone VARCHAR(20) NOT NULL, PRIMARY KEY(id))');
-        $this->addSql('CREATE UNIQUE INDEX UNIQ_8D93D6499552C794 ON "user" (сcurrent_house_id)');
         $this->addSql('CREATE TABLE messenger_messages (id BIGSERIAL NOT NULL, body TEXT NOT NULL, headers TEXT NOT NULL, queue_name VARCHAR(190) NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, available_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, delivered_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_75EA56E0FB7336F0 ON messenger_messages (queue_name)');
         $this->addSql('CREATE INDEX IDX_75EA56E0E3BD61CE ON messenger_messages (available_at)');
@@ -41,21 +41,21 @@ final class Version20251105133737 extends AbstractMigration
         $$ LANGUAGE plpgsql;');
         $this->addSql('DROP TRIGGER IF EXISTS notify_trigger ON messenger_messages;');
         $this->addSql('CREATE TRIGGER notify_trigger AFTER INSERT OR UPDATE ON messenger_messages FOR EACH ROW EXECUTE PROCEDURE notify_messenger_messages();');
-        $this->addSql('ALTER TABLE request ADD CONSTRAINT FK_3B978F9F97139001 FOREIGN KEY (applicant_id) REFERENCES "user" (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
-        $this->addSql('ALTER TABLE request ADD CONSTRAINT FK_3B978F9FD2F45EC0 FOREIGN KEY (wanted_house_id) REFERENCES house (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
-        $this->addSql('ALTER TABLE "user" ADD CONSTRAINT FK_8D93D6499552C794 FOREIGN KEY (сcurrent_house_id) REFERENCES house (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE app_user ADD CONSTRAINT FK_88BDF3E9F6CF3F3F FOREIGN KEY (current_house_id) REFERENCES house (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE application ADD CONSTRAINT FK_A45BDDC197139001 FOREIGN KEY (applicant_id) REFERENCES app_user (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE application ADD CONSTRAINT FK_A45BDDC1D2F45EC0 FOREIGN KEY (wanted_house_id) REFERENCES house (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
     }
 
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql('CREATE SCHEMA public');
-        $this->addSql('ALTER TABLE request DROP CONSTRAINT FK_3B978F9F97139001');
-        $this->addSql('ALTER TABLE request DROP CONSTRAINT FK_3B978F9FD2F45EC0');
-        $this->addSql('ALTER TABLE "user" DROP CONSTRAINT FK_8D93D6499552C794');
+        $this->addSql('ALTER TABLE app_user DROP CONSTRAINT FK_88BDF3E9F6CF3F3F');
+        $this->addSql('ALTER TABLE application DROP CONSTRAINT FK_A45BDDC197139001');
+        $this->addSql('ALTER TABLE application DROP CONSTRAINT FK_A45BDDC1D2F45EC0');
+        $this->addSql('DROP TABLE app_user');
+        $this->addSql('DROP TABLE application');
         $this->addSql('DROP TABLE house');
-        $this->addSql('DROP TABLE request');
-        $this->addSql('DROP TABLE "user"');
         $this->addSql('DROP TABLE messenger_messages');
     }
 }
