@@ -12,8 +12,9 @@ final class Controller extends AbstractController
 {
     private ServicesCSV $csvService;
 
-    public function __construct(ServicesCSV $csvService) {
-    $this->csvService = $csvService;
+    public function __construct(ServicesCSV $csvService)
+    {
+        $this->csvService = $csvService;
     }
 
 
@@ -41,7 +42,7 @@ final class Controller extends AbstractController
 
 
     #[Route('/changeBooking', name: 'changeBooking', methods:['PUT'])]
-    public function changeBookingById(Request $request): Response 
+    public function changeBookingById(Request $request): Response
     {
         $data = json_decode($request->getContent(), true);
 
@@ -52,5 +53,4 @@ final class Controller extends AbstractController
 
         return $this->json(['status' => 'ok']);
     }
-
 }

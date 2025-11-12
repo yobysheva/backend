@@ -24,14 +24,16 @@ final class UserController extends AbstractController
         $user = new User();
         $user->setName($data['name']);
         $user->setPhone($data['phone']);
-        
+
         $em->persist($user);
         $em->flush();
 
-        return new JsonResponse([
-            'status' => 'user created', 
-            'id' => $user->getId()]
-        , 201);
+        return new JsonResponse(
+            [
+            'status' => 'user created',
+            'id' => $user->getId()],
+            201
+        );
     }
     #[Route('/api/users/{id}', name: 'get_user_by_id', methods: ['GET'])]
     public function getUserById(int $id, EntityManagerInterface $em): JsonResponse

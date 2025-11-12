@@ -31,15 +31,15 @@ class UserControllerTest extends WebTestCase
 
     public function testCreateUserMissingFields(): void
     {
-    $client = static::createClient();
-    $client->request('POST', '/api/create_user', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
+        $client = static::createClient();
+        $client->request('POST', '/api/create_user', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
         'phone' => '123456'
-    ]));
+        ]));
 
-    $this->assertResponseStatusCodeSame(400);
-    $data = json_decode($client->getResponse()->getContent(), true);
-    $this->assertArrayHasKey('error', $data);
-    }  
+        $this->assertResponseStatusCodeSame(400);
+        $data = json_decode($client->getResponse()->getContent(), true);
+        $this->assertArrayHasKey('error', $data);
+    }
 
     public function testGetUserByIdSuccessfully(): void
     {
@@ -50,7 +50,7 @@ class UserControllerTest extends WebTestCase
         $user = new User();
         $user->setName('Bob');
         $user->setPhone('0987654321');
-        
+
         $em->persist($user);
         $em->flush();
         $userId = $user->getId();

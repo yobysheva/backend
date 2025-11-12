@@ -21,7 +21,14 @@ class HouseControllerTest extends WebTestCase
             'shower' => false
         ];
 
-        $client->request('POST', '/api/create_house', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode($requestData));
+        $client->request(
+            'POST',
+            '/api/create_house',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode($requestData)
+        );
         $this->assertResponseStatusCodeSame(201);
 
         $responseData = json_decode($client->getResponse()->getContent(), true);
@@ -92,5 +99,4 @@ class HouseControllerTest extends WebTestCase
         $data = json_decode($client->getResponse()->getContent(), true);
         $this->assertArrayHasKey('error', $data);
     }
-
 }

@@ -58,8 +58,8 @@ final class HouseController extends AbstractController
             'id' => $house->getId(),
             'spaciousness' => $house->getSpaciousness(),
             'line' => $house->getLine(),
-            'shower'=> $house->isShower(),
-            'bathroom'=> $house->isBathroom(),
+            'shower' => $house->isShower(),
+            'bathroom' => $house->isBathroom(),
         ]);
     }
 }

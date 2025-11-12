@@ -49,5 +49,4 @@ class Application
 
         return $this;
     }
-
 }
