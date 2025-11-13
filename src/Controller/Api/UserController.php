@@ -22,9 +22,16 @@ final class UserController extends AbstractController
             return new JsonResponse(['error' => 'name and phone fields requered'], 400);
         }
 
+        assert(is_string($data['name']));
+        assert(is_string($data['phone']));
+
+        $name = $data['name'];
+
+        $phone = $data['phone'];
+
         $user = new User();
-        $user->setName($data['name']);
-        $user->setPhone($data['phone']);
+        $user->setName($name);
+        $user->setPhone($phone);
 
         $em->persist($user);
         $em->flush();

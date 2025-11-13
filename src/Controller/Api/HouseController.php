@@ -27,6 +27,11 @@ final class HouseController extends AbstractController
             return new JsonResponse(['error' => 'Invalid fields: spaciousness and line must be integers'], 400);
         }
 
+        assert(is_int($data['spaciousness']));
+        assert(is_int($data['line']));
+
+        $spaciousness = $data['spaciousness'];
+        $line = $data['line'];
         $bathroom = $data['bathroom'] ?? false;
         $shower = $data['shower'] ?? false;
 
@@ -35,8 +40,8 @@ final class HouseController extends AbstractController
         }
 
         $house = (new House())
-            ->setSpaciousness($data['spaciousness'])
-            ->setLine($data['line'])
+            ->setSpaciousness($spaciousness)
+            ->setLine($line)
             ->setBathroom($bathroom)
             ->setShower($shower)
         ;
