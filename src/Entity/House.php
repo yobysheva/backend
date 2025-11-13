@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\HouseRepository;
@@ -89,12 +91,12 @@ class House
     public function setUserForHouse(?User $user_for_house): static
     {
         // unset the owning side of the relation if necessary
-        if ($user_for_house === null && $this->user_for_house !== null) {
+        if (null === $user_for_house && null !== $this->user_for_house) {
             $this->user_for_house->setcurrentHouse(null);
         }
 
         // set the owning side of the relation if necessary
-        if ($user_for_house !== null && $user_for_house->getcurrentHouse() !== $this) {
+        if (null !== $user_for_house && $user_for_house->getcurrentHouse() !== $this) {
             $user_for_house->setcurrentHouse($this);
         }
 
