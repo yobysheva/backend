@@ -1,11 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Api;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 class UserControllerTest extends WebTestCase
 {
     public function testCreateUserSuccessfully(): void
@@ -16,7 +23,7 @@ class UserControllerTest extends WebTestCase
 
         $client->request('POST', '/api/create_user', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
             'name' => 'Alice',
-            'phone' => '1234567890'
+            'phone' => '1234567890',
         ]));
 
         $this->assertResponseStatusCodeSame(201);
@@ -33,7 +40,7 @@ class UserControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $client->request('POST', '/api/create_user', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
-        'phone' => '123456'
+            'phone' => '123456',
         ]));
 
         $this->assertResponseStatusCodeSame(400);
@@ -55,7 +62,7 @@ class UserControllerTest extends WebTestCase
         $em->flush();
         $userId = $user->getId();
 
-        $client->request('GET', "/api/users/$userId");
+        $client->request('GET', "/api/users/{$userId}");
         $this->assertResponseIsSuccessful();
         $data = json_decode($client->getResponse()->getContent(), true);
         $this->assertSame('Bob', $data['name']);

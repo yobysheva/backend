@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Attribute\Route;
 use App\Services\ServicesCSV;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 
 final class Controller extends AbstractController
 {
@@ -17,16 +19,15 @@ final class Controller extends AbstractController
         $this->csvService = $csvService;
     }
 
-
-    #[Route('/', name: 'houses', methods:['GET'])]
+    #[Route('/', name: 'houses', methods: ['GET'])]
     public function listHouses(): Response
     {
         $houses = $this->csvService->getAllHouses();
+
         return $this->json($houses);
     }
 
-
-    #[Route('/book', name:'book', methods:['POST'])]
+    #[Route('/book', name: 'book', methods: ['POST'])]
     public function book(Request $request): Response
     {
         $data = json_decode($request->getContent(), true);
@@ -40,8 +41,7 @@ final class Controller extends AbstractController
         return $this->json(['status' => 'ok', 'booking_id' => $bookingId]);
     }
 
-
-    #[Route('/changeBooking', name: 'changeBooking', methods:['PUT'])]
+    #[Route('/changeBooking', name: 'changeBooking', methods: ['PUT'])]
     public function changeBookingById(Request $request): Response
     {
         $data = json_decode($request->getContent(), true);

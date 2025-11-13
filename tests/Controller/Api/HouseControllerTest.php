@@ -1,11 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Api;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\House;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 class HouseControllerTest extends WebTestCase
 {
     public function testCreateHouseSuccessfully(): void
@@ -18,7 +25,7 @@ class HouseControllerTest extends WebTestCase
             'spaciousness' => 2,
             'line' => 3,
             'bathroom' => true,
-            'shower' => false
+            'shower' => false,
         ];
 
         $client->request(
@@ -51,12 +58,12 @@ class HouseControllerTest extends WebTestCase
             'spaciousness' => 4,
             'line' => 1,
             'bathroom' => true,
-            'shower' => true
+            'shower' => true,
         ]));
         $response = json_decode($client->getResponse()->getContent(), true);
         $houseId = $response['id'];
 
-        $client->request('GET', "/api/houses/$houseId");
+        $client->request('GET', "/api/houses/{$houseId}");
         $this->assertResponseIsSuccessful();
         $data = json_decode($client->getResponse()->getContent(), true);
         $this->assertSame(4, $data['spaciousness']);
@@ -70,7 +77,7 @@ class HouseControllerTest extends WebTestCase
         $client = static::createClient();
 
         $client->request('POST', '/api/create_house', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
-            'spaciousness' => 3
+            'spaciousness' => 3,
         ]));
 
         $this->assertResponseStatusCodeSame(400);
@@ -84,7 +91,7 @@ class HouseControllerTest extends WebTestCase
 
         $client->request('POST', '/api/create_house', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
             'spaciousness' => 'big',
-            'line' => 2
+            'line' => 2,
         ]));
 
         $this->assertResponseStatusCodeSame(400);

@@ -1,25 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
+
+use RuntimeException;
 
 class ServicesCSV
 {
     public function getAllHouses(): array
     {
-        $filePath = __DIR__ . '/houses.csv';
+        $filePath = __DIR__.'/houses.csv';
 
         $file = fopen($filePath, 'r');
-        ;
+
         if (!$file) {
-            throw new \RuntimeException("Can not open file $filePath for reading.");
+            throw new RuntimeException("Can not open file {$filePath} for reading.");
         }
 
         $header = fgetcsv($file);
 
         $data = [];
 
-        while (($row = fgetcsv($file)) !==  false) {
-            $row = array_map(fn($cell) => mb_convert_encoding($cell, 'UTF-8', 'CP1251'), $row);
+        while (($row = fgetcsv($file)) !== false) {
+            $row = array_map(fn ($cell) => mb_convert_encoding($cell, 'UTF-8', 'CP1251'), $row);
             $data[] = array_combine($header, $row);
         }
 
@@ -30,7 +34,7 @@ class ServicesCSV
 
     public function addBooking($houseId, $phone, $comment): int
     {
-        $filePath = __DIR__ . '/booking.csv';
+        $filePath = __DIR__.'/booking.csv';
 
         if (!file_exists($filePath)) {
             file_put_contents($filePath, "id,houseId,phone,comment\n");
@@ -41,7 +45,7 @@ class ServicesCSV
         if (($file = fopen($filePath, 'r')) !== false) {
             fgetcsv($file);
             while (($row = fgetcsv($file)) !== false) {
-                $id = (int)$row[0];
+                $id = (int) $row[0];
                 if ($id > $currentId) {
                     $currentId = $id;
                 }
@@ -52,9 +56,9 @@ class ServicesCSV
         $nextId = $currentId + 1;
 
         $file = fopen($filePath, 'a');
-        $houseId  = mb_convert_encoding($houseId, 'UTF-8');
-        $phone    = mb_convert_encoding($phone, 'UTF-8');
-        $comment  = mb_convert_encoding($comment, 'UTF-8');
+        $houseId = mb_convert_encoding($houseId, 'UTF-8');
+        $phone = mb_convert_encoding($phone, 'UTF-8');
+        $comment = mb_convert_encoding($comment, 'UTF-8');
 
         fputcsv($file, [$nextId, $houseId, $phone, $comment]);
         fclose($file);
@@ -64,31 +68,28 @@ class ServicesCSV
 
     public function editBookingCommentById($targetId, $newComment): void
     {
-        $filePath = __DIR__ . '/booking.csv';
+        $filePath = __DIR__.'/booking.csv';
 
         $file = fopen($filePath, 'r+');
         if (!$file) {
-            throw new \RuntimeException("Can not open file $filePath for editing.");
+            throw new RuntimeException("Can not open file {$filePath} for editing.");
         }
 
         $header = fgetcsv($file);
         $rows = [];
         $found = false;
 
-
         while (($row = fgetcsv($file)) !== false) {
-                $id = (int)$row[0];
+            $id = (int) $row[0];
             if ($id == $targetId) {
                 $row[3] = $newComment;
                 $found = true;
             }
-                $rows[] = $row;
+            $rows[] = $row;
         }
 
-
-
         if (!$found) {
-            throw new \RuntimeException("Booking Id $targetId not found");
+            throw new RuntimeException("Booking Id {$targetId} not found");
         }
 
         rewind($file);
@@ -99,7 +100,6 @@ class ServicesCSV
         foreach ($rows as $row) {
             fputcsv($file, $row);
         }
-
 
         fclose($file);
     }

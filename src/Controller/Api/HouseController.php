@@ -1,13 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Api;
 
 use App\Entity\House;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class HouseController extends AbstractController
@@ -18,10 +19,10 @@ final class HouseController extends AbstractController
         $data = json_decode($request->getContent(), true);
 
         if (
-            !$data ||
-            !isset($data['spaciousness'], $data['line']) ||
-            !is_int($data['spaciousness']) ||
-            !is_int($data['line'])
+            !$data
+            || !isset($data['spaciousness'], $data['line'])
+            || !is_int($data['spaciousness'])
+            || !is_int($data['line'])
         ) {
             return new JsonResponse(['error' => 'Invalid fields: spaciousness and line must be integers'], 400);
         }
@@ -37,7 +38,8 @@ final class HouseController extends AbstractController
             ->setSpaciousness($data['spaciousness'])
             ->setLine($data['line'])
             ->setBathroom($bathroom)
-            ->setShower($shower);
+            ->setShower($shower)
+        ;
 
         $em->persist($house);
         $em->flush();

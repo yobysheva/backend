@@ -1,15 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Api;
 
 use App\Entity\Application;
-use App\Entity\User;
 use App\Entity\House;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class ApplicationController extends AbstractController
@@ -50,7 +51,7 @@ final class ApplicationController extends AbstractController
             'status' => 'application created',
             'application_id' => $application->getId(),
             'user_id' => $user->getId(),
-            'house_id' => $house->getId()
+            'house_id' => $house->getId(),
         ], 201);
     }
 

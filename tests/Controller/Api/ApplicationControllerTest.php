@@ -1,13 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Api;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use App\Entity\Application;
-use Doctrine\ORM\EntityManagerInterface;
-use App\Entity\User;
 use App\Entity\House;
+use App\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 class ApplicationControllerTest extends WebTestCase
 {
     public function testCreateApplicationSuccessfully(): void
@@ -85,8 +92,8 @@ class ApplicationControllerTest extends WebTestCase
             [],
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
-            'name' => 'Diana',
-            'phone' => '6666666666'
+                'name' => 'Diana',
+                'phone' => '6666666666',
             ])
         );
         $userId = json_decode($client->getResponse()->getContent(), true)['id'];
@@ -98,10 +105,10 @@ class ApplicationControllerTest extends WebTestCase
             [],
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
-            'spaciousness' => 2,
-            'line' => 4,
-            'bathroom' => true,
-            'shower' => false
+                'spaciousness' => 2,
+                'line' => 4,
+                'bathroom' => true,
+                'shower' => false,
             ])
         );
         $houseId = json_decode($client->getResponse()->getContent(), true)['id'];
@@ -113,13 +120,13 @@ class ApplicationControllerTest extends WebTestCase
             [],
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
-            'user_id' => $userId,
-            'house_id' => $houseId
+                'user_id' => $userId,
+                'house_id' => $houseId,
             ])
         );
         $applicationId = json_decode($client->getResponse()->getContent(), true)['application_id'];
 
-        $client->request('GET', "/api/applications/$applicationId");
+        $client->request('GET', "/api/applications/{$applicationId}");
         $this->assertResponseIsSuccessful();
         $data = json_decode($client->getResponse()->getContent(), true);
         $this->assertSame($userId, $data['user_id']);
@@ -137,7 +144,7 @@ class ApplicationControllerTest extends WebTestCase
             [],
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
-            'user_id' => 1
+                'user_id' => 1,
             ])
         );
         $this->assertResponseStatusCodeSame(400);
@@ -156,8 +163,8 @@ class ApplicationControllerTest extends WebTestCase
             [],
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
-            'user_id' => 999999999,
-            'house_id' => 1
+                'user_id' => 999999999,
+                'house_id' => 1,
             ])
         );
 
@@ -177,8 +184,8 @@ class ApplicationControllerTest extends WebTestCase
             [],
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
-            'name' => 'Eve',
-            'phone' => '111222333'
+                'name' => 'Eve',
+                'phone' => '111222333',
             ])
         );
         $userId = json_decode($client->getResponse()->getContent(), true)['id'];
@@ -190,8 +197,8 @@ class ApplicationControllerTest extends WebTestCase
             [],
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
-            'user_id' => $userId,
-            'house_id' => 999999999
+                'user_id' => $userId,
+                'house_id' => 999999999,
             ])
         );
 
