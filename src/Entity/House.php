@@ -8,7 +8,7 @@ use App\Repository\HouseRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: HouseRepository::class)]
-final class House
+class House
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
