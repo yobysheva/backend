@@ -24,6 +24,8 @@ class UserControllerTest extends WebTestCase
         $client->request('POST', '/api/create_user', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
             'name' => 'Alice',
             'phone' => '1234567890',
+            'password' => 'secret123',
+            'role' => 'admin'
         ]));
 
         $this->assertResponseStatusCodeSame(201);
@@ -34,6 +36,10 @@ class UserControllerTest extends WebTestCase
         $this->assertNotNull($user);
         $this->assertSame('Alice', $user->getName());
         $this->assertSame('1234567890', $user->getPhone());
+        $this->assertSame('admin', $user->getRole());
+
+        $this->assertNotSame('secret123', $user->getPassword());
+        $this->assertNotEmpty($user->getPassword());
     }
 
     public function testCreateUserMissingFields(): void
@@ -57,6 +63,8 @@ class UserControllerTest extends WebTestCase
         $user = new User();
         $user->setName('Bob');
         $user->setPhone('0987654321');
+        $user->setPassword('hashedpass'); 
+        $user->setRole('guest');
 
         $em->persist($user);
         $em->flush();
@@ -67,5 +75,6 @@ class UserControllerTest extends WebTestCase
         $data = json_decode($client->getResponse()->getContent(), true);
         $this->assertSame('Bob', $data['name']);
         $this->assertSame('0987654321', $data['phone']);
+        $this->assertSame('guest', $data['role']);
     }
 }

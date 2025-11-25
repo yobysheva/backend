@@ -10,16 +10,17 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final class UserController extends AbstractController
 {
     #[Route('/api/create_user', name: 'api_create_user', methods: ['POST'])]
-    public function createUser(Request $request, EntityManagerInterface $em): JsonResponse
+    public function createUser(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 
-        if (!$data || !isset($data['name'], $data['phone'])) {
-            return new JsonResponse(['error' => 'name and phone fields requered'], 400);
+        if (!$data || !isset($data['name'], $data['phone'], $data['password'])) {
+            return new JsonResponse(['error' => 'name, phone and password fields requered'], 400);
         }
 
         assert(is_string($data['name']));
@@ -33,6 +34,18 @@ final class UserController extends AbstractController
         $user->setName($name);
         $user->setPhone($phone);
 
+        $plaintextPassword = $data['password'];
+
+        $hashedPassword = $passwordHasher->hashPassword(
+            $user,
+            $plaintextPassword
+        );
+        $user->setPassword($hashedPassword);
+
+        if (isset($data['role']) && is_string($data['role'])) {
+            $user->setRole($data['role']);
+        }
+        
         $em->persist($user);
         $em->flush();
 
@@ -57,6 +70,7 @@ final class UserController extends AbstractController
             'id' => $user->getId(),
             'phone' => $user->getPhone(),
             'name' => $user->getName(),
+            'role' => $user->getRole(),
         ]);
     }
 }

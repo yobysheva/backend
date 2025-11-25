@@ -8,10 +8,11 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: 'app_user')]
-class User
+class User implements PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -23,6 +24,12 @@ class User
 
     #[ORM\Column(length: 20)]
     private ?string $phone = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $role = 'guest';
+
+    #[ORM\Column(type: 'string')]
+    private string $password;
 
     /**
      * @var Collection<int, Application>
@@ -64,6 +71,28 @@ class User
     {
         $this->phone = $phone;
 
+        return $this;
+    }
+
+    public function getRole(): string
+    {
+        return $this->role;
+    }
+
+    public function setRole(string $role): self
+    {
+        $this->role = $role;
+        return $this;
+    }
+
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): self
+    {
+        $this->password = $password;
         return $this;
     }
 

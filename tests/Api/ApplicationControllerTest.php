@@ -25,7 +25,7 @@ class ApplicationControllerTest extends WebTestCase
         /** @var EntityManagerInterface $em */
         $em = $container->get(EntityManagerInterface::class);
 
-        $userData = ['name' => 'Charlie', 'phone' => '5555555555'];
+        $userData = ['name' => 'Charlie', 'phone' => '5555555555', 'password' => 'test1234'];
         $client->request(
             'POST',
             '/api/create_user',
@@ -94,6 +94,7 @@ class ApplicationControllerTest extends WebTestCase
             json_encode([
                 'name' => 'Diana',
                 'phone' => '6666666666',
+                'password' => 'test1234',
             ])
         );
         $userId = json_decode($client->getResponse()->getContent(), true)['id'];
@@ -186,6 +187,7 @@ class ApplicationControllerTest extends WebTestCase
             json_encode([
                 'name' => 'Eve',
                 'phone' => '111222333',
+                'password' => 'test1234',
             ])
         );
         $userId = json_decode($client->getResponse()->getContent(), true)['id'];
