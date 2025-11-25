@@ -25,7 +25,7 @@ class UserControllerTest extends WebTestCase
             'name' => 'Alice',
             'phone' => '1234567890',
             'password' => 'secret123',
-            'role' => 'admin'
+            'roles' => ['ROLE_USER'],
         ]));
 
         $this->assertResponseStatusCodeSame(201);
@@ -36,7 +36,7 @@ class UserControllerTest extends WebTestCase
         $this->assertNotNull($user);
         $this->assertSame('Alice', $user->getName());
         $this->assertSame('1234567890', $user->getPhone());
-        $this->assertSame('admin', $user->getRole());
+        $this->assertSame(['ROLE_USER'], $user->getRoles());
 
         $this->assertNotSame('secret123', $user->getPassword());
         $this->assertNotEmpty($user->getPassword());
@@ -64,7 +64,7 @@ class UserControllerTest extends WebTestCase
         $user->setName('Bob');
         $user->setPhone('0987654321');
         $user->setPassword('hashedpass'); 
-        $user->setRole('guest');
+        $user->setRoles(['guest']);
 
         $em->persist($user);
         $em->flush();
@@ -75,6 +75,6 @@ class UserControllerTest extends WebTestCase
         $data = json_decode($client->getResponse()->getContent(), true);
         $this->assertSame('Bob', $data['name']);
         $this->assertSame('0987654321', $data['phone']);
-        $this->assertSame('guest', $data['role']);
+        $this->assertSame(['guest', 'ROLE_USER'], $data['role']);
     }
 }

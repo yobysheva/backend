@@ -12,9 +12,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
+#[Route('/api', name:'api')]
 final class UserController extends AbstractController
 {
-    #[Route('/api/create_user', name: 'api_create_user', methods: ['POST'])]
+    #[Route('/create_user', name: 'api_create_user', methods: ['POST'])]
     public function createUser(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -43,9 +44,9 @@ final class UserController extends AbstractController
         $user->setPassword($hashedPassword);
 
         if (isset($data['role']) && is_string($data['role'])) {
-            $user->setRole($data['role']);
+            $user->setRoles($data['role']);
         }
-        
+
         $em->persist($user);
         $em->flush();
 
@@ -57,7 +58,7 @@ final class UserController extends AbstractController
         );
     }
 
-    #[Route('/api/users/{id}', name: 'get_user_by_id', methods: ['GET'])]
+    #[Route('/users/{id}', name: 'get_user_by_id', methods: ['GET'])]
     public function getUserById(int $id, EntityManagerInterface $em): JsonResponse
     {
         $user = $em->getRepository(User::class)->find($id);
@@ -70,7 +71,7 @@ final class UserController extends AbstractController
             'id' => $user->getId(),
             'phone' => $user->getPhone(),
             'name' => $user->getName(),
-            'role' => $user->getRole(),
+            'role' => $user->getRoles(),
         ]);
     }
 }

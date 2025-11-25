@@ -11,9 +11,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
+#[Route('/api', name:'api')]
 final class HouseController extends AbstractController
 {
-    #[Route('/api/create_house', name: 'api_create_house', methods: ['POST'])]
+    #[Route('/create_house', name: 'api_create_house', methods: ['POST'])]
     public function createHouse(Request $request, EntityManagerInterface $em): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -52,7 +53,7 @@ final class HouseController extends AbstractController
         return new JsonResponse(['id' => $house->getId()], 201);
     }
 
-    #[Route('/api/houses/{id}', name: 'get_house_by_id', methods: ['GET'])]
+    #[Route('/houses/{id}', name: 'get_house_by_id', methods: ['GET'])]
     public function getHouseById(int $id, EntityManagerInterface $em): JsonResponse
     {
         $house = $em->getRepository(House::class)->find($id);

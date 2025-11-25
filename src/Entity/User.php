@@ -9,11 +9,15 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: 'app_user')]
-class User implements PasswordAuthenticatedUserInterface
-{
+class User implements UserInterface, PasswordAuthenticatedUserInterface
+{   
+    public const ROLE_USER = 'ROLE_USER';
+    public const ROLE_ADMIN = 'ROLE_ADMIN';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -22,11 +26,11 @@ class User implements PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\Column(length: 20)]
+    #[ORM\Column(length: 20, unique: true)]
     private ?string $phone = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $role = 'guest';
+    #[ORM\Column(type: 'json')]
+    private array $roles = [];
 
     #[ORM\Column(type: 'string')]
     private string $password;
@@ -74,14 +78,33 @@ class User implements PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getRole(): string
+    public function getUserIdentifier(): string
     {
-        return $this->role;
+        return (string) $this->phone;
     }
 
-    public function setRole(string $role): self
+    /**
+     * @see UserInterface
+     */
+
+    public function getRoles(): array
     {
-        $this->role = $role;
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+     #[Override]
+    public function eraseCredentials(): void
+    {
+    }
+
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+
         return $this;
     }
 
