@@ -1,0 +1,19 @@
+{% if error %}
+    <div class="alert alert-danger">
+        {{ error.messageKey|trans(error.messageData, 'security') }}
+    </div>
+{% endif %}
+
+<form action="{{ path('app_login') }}" method="post">
+    <input type="hidden" name="_csrf_token"
+           value="{{ csrf_token('authenticate') }}"
+    >
+
+    <label for="phone">Phone</label>
+    <input type="text" id="phone" name="_username" value="{{ last_username }}" required autofocus>
+
+    <label for="password">Password</label>
+    <input type="password" id="password" name="_password" required>
+
+    <button type="submit">Login</button>
+</form>
