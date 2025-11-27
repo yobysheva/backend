@@ -5,19 +5,27 @@ declare(strict_types=1);
 namespace App\Controller\Api;
 
 use App\Entity\User;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api', name:'api')]
 final class UserController extends AbstractController
 {
-    #[Route('/create_user', name: 'api_create_user', methods: ['POST'])]
-    public function createUser(Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $passwordHasher): JsonResponse
-    {
+    #[Route(
+        '/user/create_user',
+        name: 'api_create_user',
+        methods: ['POST']
+    )]
+    public function createUser(
+        Request $request,
+        EntityManagerInterface $em,
+        UserPasswordHasherInterface $passwordHasher
+    ): JsonResponse {
         $data = json_decode($request->getContent(), true);
 
         if (!$data || !isset($data['name'], $data['phone'], $data['password'])) {
@@ -35,7 +43,7 @@ final class UserController extends AbstractController
         $user->setName($name);
         $user->setPhone($phone);
 
-        $plaintextPassword = $data['password'];
+        $plaintextPassword = (string) $data['password'];
 
         $hashedPassword = $passwordHasher->hashPassword(
             $user,
@@ -44,18 +52,20 @@ final class UserController extends AbstractController
         $user->setPassword($hashedPassword);
 
         if (isset($data['role']) && is_string($data['role'])) {
-            $user->setRoles($data['role']);
+            $user->setRoles([$data['role']]);
         }
 
-        $em->persist($user);
-        $em->flush();
+        try {
+            $em->persist($user);
+            $em->flush();
+        } catch (UniqueConstraintViolationException $e) {
+            return new JsonResponse(['error' => 'User with this phone already exists'], 409);
+        }
 
-        return new JsonResponse(
-            [
-                'status' => 'user created',
-                'id' => $user->getId()],
-            201
-        );
+        return new JsonResponse([
+            'status' => 'user created',
+            'id' => $user->getId(),
+        ], 201);
     }
 
     #[Route('/users/{id}', name: 'get_user_by_id', methods: ['GET'])]

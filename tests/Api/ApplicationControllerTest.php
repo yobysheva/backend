@@ -8,38 +8,36 @@ use App\Entity\Application;
 use App\Entity\House;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
  * @internal
  *
  * @coversNothing
  */
-class ApplicationControllerTest extends WebTestCase
+class ApplicationControllerTest extends AuthenticatedApiTestCase
 {
     public function testCreateApplicationSuccessfully(): void
     {
-        $client = static::createClient();
         $container = static::getContainer();
 
-        /** @var EntityManagerInterface $em */
-        $em = $container->get(EntityManagerInterface::class);
+        // @var EntityManagerInterface $em
+        $this->em = $container->get(EntityManagerInterface::class);
 
         $userData = ['name' => 'Charlie', 'phone' => '5555555555', 'password' => 'test1234'];
-        $client->request(
+        $this->client->request(
             'POST',
-            '/api/create_user',
+            '/api/user/create_user',
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
             json_encode($userData)
         );
-        $responseUser = json_decode($client->getResponse()->getContent(), true);
+        $responseUser = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertArrayHasKey('id', $responseUser);
         $userId = $responseUser['id'];
 
         $houseData = ['spaciousness' => 8, 'line' => 2, 'bathroom' => false, 'shower' => true];
-        $client->request(
+        $this->client->request(
             'POST',
             '/api/create_house',
             [],
@@ -47,12 +45,12 @@ class ApplicationControllerTest extends WebTestCase
             ['CONTENT_TYPE' => 'application/json'],
             json_encode($houseData)
         );
-        $responseHouse = json_decode($client->getResponse()->getContent(), true);
+        $responseHouse = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertArrayHasKey('id', $responseHouse);
         $houseId = $responseHouse['id'];
 
         $requestData = ['user_id' => $userId, 'house_id' => $houseId];
-        $client->request(
+        $this->client->request(
             'POST',
             '/api/create_application',
             [],
@@ -62,15 +60,15 @@ class ApplicationControllerTest extends WebTestCase
         );
         $this->assertResponseStatusCodeSame(201);
 
-        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $responseData = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertArrayHasKey('application_id', $responseData);
         $applicationId = $responseData['application_id'];
 
-        $em->clear();
+        $this->em->clear();
 
-        $user = $em->getRepository(User::class)->find($userId);
-        $house = $em->getRepository(House::class)->find($houseId);
-        $application = $em->getRepository(Application::class)->find($applicationId);
+        $user = $this->em->getRepository(User::class)->find($userId);
+        $house = $this->em->getRepository(House::class)->find($houseId);
+        $application = $this->em->getRepository(Application::class)->find($applicationId);
 
         $this->assertNotNull($application, 'Application should exist in DB');
         $this->assertNotNull($application->getApplicant(), 'Application applicant should not be null');
@@ -83,11 +81,9 @@ class ApplicationControllerTest extends WebTestCase
 
     public function testGetApplicationByIdSuccessfully(): void
     {
-        $client = static::createClient();
-
-        $client->request(
+        $this->client->request(
             'POST',
-            '/api/create_user',
+            '/api/user/create_user',
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
@@ -97,9 +93,9 @@ class ApplicationControllerTest extends WebTestCase
                 'password' => 'test1234',
             ])
         );
-        $userId = json_decode($client->getResponse()->getContent(), true)['id'];
+        $userId = json_decode($this->client->getResponse()->getContent(), true)['id'];
 
-        $client->request(
+        $this->client->request(
             'POST',
             '/api/create_house',
             [],
@@ -112,9 +108,9 @@ class ApplicationControllerTest extends WebTestCase
                 'shower' => false,
             ])
         );
-        $houseId = json_decode($client->getResponse()->getContent(), true)['id'];
+        $houseId = json_decode($this->client->getResponse()->getContent(), true)['id'];
 
-        $client->request(
+        $this->client->request(
             'POST',
             '/api/create_application',
             [],
@@ -125,20 +121,18 @@ class ApplicationControllerTest extends WebTestCase
                 'house_id' => $houseId,
             ])
         );
-        $applicationId = json_decode($client->getResponse()->getContent(), true)['application_id'];
+        $applicationId = json_decode($this->client->getResponse()->getContent(), true)['application_id'];
 
-        $client->request('GET', "/api/applications/{$applicationId}");
+        $this->client->request('GET', "/api/applications/{$applicationId}");
         $this->assertResponseIsSuccessful();
-        $data = json_decode($client->getResponse()->getContent(), true);
+        $data = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertSame($userId, $data['user_id']);
         $this->assertSame($houseId, $data['house_id']);
     }
 
     public function testCreateApplicationMissingFields(): void
     {
-        $client = static::createClient();
-
-        $client->request(
+        $this->client->request(
             'POST',
             '/api/create_application',
             [],
@@ -149,15 +143,13 @@ class ApplicationControllerTest extends WebTestCase
             ])
         );
         $this->assertResponseStatusCodeSame(400);
-        $data = json_decode($client->getResponse()->getContent(), true);
+        $data = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertArrayHasKey('error', $data);
     }
 
     public function testCreateApplicationUserNotFound(): void
     {
-        $client = static::createClient();
-
-        $client->request(
+        $this->client->request(
             'POST',
             '/api/create_application',
             [],
@@ -170,29 +162,28 @@ class ApplicationControllerTest extends WebTestCase
         );
 
         $this->assertResponseStatusCodeSame(404);
-        $data = json_decode($client->getResponse()->getContent(), true);
+        $data = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertArrayHasKey('error', $data);
     }
 
     public function testCreateApplicationHouseNotFound(): void
     {
-        $client = static::createClient();
-
-        $client->request(
+        $uniquePhone = 'phone_'.uniqid();
+        $this->client->request(
             'POST',
-            '/api/create_user',
+            '/api/user/create_user',
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([
                 'name' => 'Eve',
-                'phone' => '111222333',
+                'phone' => $uniquePhone,
                 'password' => 'test1234',
             ])
         );
-        $userId = json_decode($client->getResponse()->getContent(), true)['id'];
+        $userId = json_decode($this->client->getResponse()->getContent(), true)['id'];
 
-        $client->request(
+        $this->client->request(
             'POST',
             '/api/create_application',
             [],
@@ -205,16 +196,15 @@ class ApplicationControllerTest extends WebTestCase
         );
 
         $this->assertResponseStatusCodeSame(404);
-        $data = json_decode($client->getResponse()->getContent(), true);
+        $data = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertArrayHasKey('error', $data);
     }
 
     public function testGetApplicationNotFound(): void
     {
-        $client = static::createClient();
-        $client->request('GET', '/api/applications/9999999');
+        $this->client->request('GET', '/api/applications/9999999');
         $this->assertResponseStatusCodeSame(404);
-        $data = json_decode($client->getResponse()->getContent(), true);
+        $data = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertArrayHasKey('error', $data);
     }
 }

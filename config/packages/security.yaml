@@ -13,12 +13,8 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-        api:
-            pattern: ^/api
-            lazy: true
-            stateless: true
-            provider: app_user_provider
         main:
+            pattern: ^/
             lazy: true
             provider: app_user_provider
             form_login:
@@ -39,8 +35,10 @@ security:
     access_control:
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
-        - { path: ^/api, roles: ROLE_USER }
+        - { path: ^/api/user$,  roles: PUBLIC_ACCESS }
         - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api, roles: ROLE_USER }
+        - { path: ^/, roles: PUBLIC_ACCESS }
 
 when@test:
     security:

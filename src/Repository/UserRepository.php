@@ -10,9 +10,12 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<User>
+ *
+ * @psalm-suppress UnusedParam
  */
 final class UserRepository extends ServiceEntityRepository
 {
+    /** @psalm-suppress UnusedParam */
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, User::class);

@@ -5,22 +5,16 @@ declare(strict_types=1);
 namespace App\Tests\Api;
 
 use App\Entity\House;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
  * @internal
  *
  * @coversNothing
  */
-class HouseControllerTest extends WebTestCase
+class HouseControllerTest extends AuthenticatedApiTestCase
 {
     public function testCreateHouseSuccessfully(): void
     {
-        $client = static::createClient();
-        $container = static::getContainer();
-        $em = $container->get(EntityManagerInterface::class);
-
         $requestData = [
             'spaciousness' => 2,
             'line' => 3,
@@ -28,7 +22,7 @@ class HouseControllerTest extends WebTestCase
             'shower' => false,
         ];
 
-        $client->request(
+        $this->client->request(
             'POST',
             '/api/create_house',
             [],
@@ -38,11 +32,11 @@ class HouseControllerTest extends WebTestCase
         );
         $this->assertResponseStatusCodeSame(201);
 
-        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $responseData = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertArrayHasKey('id', $responseData);
         $houseId = $responseData['id'];
 
-        $house = $em->getRepository(House::class)->find($houseId);
+        $house = $this->em->getRepository(House::class)->find($houseId);
         $this->assertNotNull($house);
         $this->assertSame($requestData['spaciousness'], $house->getSpaciousness());
         $this->assertSame($requestData['line'], $house->getLine());
@@ -52,20 +46,25 @@ class HouseControllerTest extends WebTestCase
 
     public function testGetHouseByIdSuccessfully(): void
     {
-        $client = static::createClient();
-
-        $client->request('POST', '/api/create_house', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
-            'spaciousness' => 4,
-            'line' => 1,
-            'bathroom' => true,
-            'shower' => true,
-        ]));
-        $response = json_decode($client->getResponse()->getContent(), true);
+        $this->client->request(
+            'POST',
+            '/api/create_house',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([
+                'spaciousness' => 4,
+                'line' => 1,
+                'bathroom' => true,
+                'shower' => true,
+            ])
+        );
+        $response = json_decode($this->client->getResponse()->getContent(), true);
         $houseId = $response['id'];
 
-        $client->request('GET', "/api/houses/{$houseId}");
+        $this->client->request('GET', "/api/houses/{$houseId}");
         $this->assertResponseIsSuccessful();
-        $data = json_decode($client->getResponse()->getContent(), true);
+        $data = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertSame(4, $data['spaciousness']);
         $this->assertSame(1, $data['line']);
         $this->assertTrue($data['bathroom']);
@@ -74,36 +73,44 @@ class HouseControllerTest extends WebTestCase
 
     public function testCreateHouseMissingFields(): void
     {
-        $client = static::createClient();
-
-        $client->request('POST', '/api/create_house', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
-            'spaciousness' => 3,
-        ]));
+        $this->client->request(
+            'POST',
+            '/api/create_house',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([
+                'spaciousness' => 3,
+            ])
+        );
 
         $this->assertResponseStatusCodeSame(400);
-        $data = json_decode($client->getResponse()->getContent(), true);
+        $data = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertArrayHasKey('error', $data);
     }
 
     public function testCreateHouseInvalidType(): void
     {
-        $client = static::createClient();
-
-        $client->request('POST', '/api/create_house', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
-            'spaciousness' => 'big',
-            'line' => 2,
-        ]));
+        $this->client->request(
+            'POST',
+            '/api/create_house',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([
+                'spaciousness' => 'big',
+                'line' => 2,
+            ])
+        );
 
         $this->assertResponseStatusCodeSame(400);
     }
 
     public function testGetHouseNotFound(): void
     {
-        $client = static::createClient();
-
-        $client->request('GET', '/api/houses/999999');
+        $this->client->request('GET', '/api/houses/999999');
         $this->assertResponseStatusCodeSame(404);
-        $data = json_decode($client->getResponse()->getContent(), true);
+        $data = json_decode($this->client->getResponse()->getContent(), true);
         $this->assertArrayHasKey('error', $data);
     }
 }
