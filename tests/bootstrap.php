@@ -2,14 +2,22 @@
 
 declare(strict_types=1);
 
+use App\Kernel;
+use Doctrine\ORM\Tools\SchemaTool;
 use Symfony\Component\Dotenv\Dotenv;
 
 require dirname(__DIR__).'/vendor/autoload.php';
 
 if (method_exists(Dotenv::class, 'bootEnv')) {
-    (new Dotenv())->bootEnv(dirname(__DIR__).'/.env');
+    (new Dotenv())->bootEnv(dirname(__DIR__).'/.env.test');
 }
 
-if ($_SERVER['APP_DEBUG']) {
-    umask(0000);
-}
+$kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
+$kernel->boot();
+$entityManager = $kernel->getContainer()->get('doctrine')->getManager();
+
+$metadata = $entityManager->getMetadataFactory()->getAllMetadata();
+
+$tool = new SchemaTool($entityManager);
+$tool->dropSchema($metadata);
+$tool->createSchema($metadata);

@@ -24,4 +24,9 @@
             <file name="public/index.php"/>
         </ignoreFiles>
     </projectFiles>
+    <issueHandlers>
+        <PossiblyUnusedMethod errorLevel="suppress"/>
+        <ClassMustBeFinal errorLevel="suppress"/>
+        <UnusedClass errorLevel="suppress"/>
+    </issueHandlers>
 </psalm>

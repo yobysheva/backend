@@ -8,11 +8,18 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use LogicException;
+use Override;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: 'app_user')]
-class User
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    public const ROLE_USER = 'ROLE_USER';
+    public const ROLE_ADMIN = 'ROLE_ADMIN';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -21,8 +28,14 @@ class User
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\Column(length: 20)]
+    #[ORM\Column(length: 20, unique: true)]
     private ?string $phone = null;
+
+    #[ORM\Column(type: 'json')]
+    private array $roles = [];
+
+    #[ORM\Column(type: 'string')]
+    private string $password;
 
     /**
      * @var Collection<int, Application>
@@ -36,6 +49,7 @@ class User
     public function __construct()
     {
         $this->applications = new ArrayCollection();
+        $this->password = '';
     }
 
     public function getId(): ?int
@@ -63,6 +77,52 @@ class User
     public function setPhone(string $phone): static
     {
         $this->phone = $phone;
+
+        return $this;
+    }
+
+    #[Override]
+    public function getUserIdentifier(): string
+    {
+        if (null === $this->phone || '' === $this->phone) {
+            throw new LogicException('Phone must be set');
+        }
+
+        // @psalm-return non-empty-string
+        return $this->phone;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    #[Override]
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        $roles[] = self::ROLE_USER;
+
+        return array_unique(array_filter($roles, fn ($role) => is_string($role)));
+    }
+
+    #[Override]
+    public function eraseCredentials(): void {}
+
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
+
+    #[Override]
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): self
+    {
+        $this->password = $password;
 
         return $this;
     }

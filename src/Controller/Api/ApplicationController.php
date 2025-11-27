@@ -13,9 +13,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
+#[Route('/api', name:'api')]
 final class ApplicationController extends AbstractController
 {
-    #[Route('/api/create_application', name: 'api_create_application', methods: ['POST'])]
+    #[Route('/create_application', name: 'api_create_application', methods: ['POST'])]
     public function createApplication(Request $request, EntityManagerInterface $em): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -55,7 +56,7 @@ final class ApplicationController extends AbstractController
         ], 201);
     }
 
-    #[Route('/api/applications/{id}', name: 'get_application_by_id', methods: ['GET'])]
+    #[Route('/applications/{id}', name: 'get_application_by_id', methods: ['GET'])]
     public function getApplicationById(int $id, EntityManagerInterface $em): JsonResponse
     {
         $application = $em->getRepository(Application::class)->find($id);
