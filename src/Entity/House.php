@@ -4,10 +4,84 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Post;
+use App\Controller\Api\HouseController;
 use App\Repository\HouseRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: HouseRepository::class)]
+#[ApiResource(
+    operations: [
+        new Post(
+            uriTemplate: '/create_house',
+            controller: HouseController::class.'::createHouse',
+        ),
+        new Get(
+            uriTemplate: '/houses/{id}',
+            controller: HouseController::class.'::getHouseById',
+        ),
+    ],
+    extraProperties: [
+        'openapi_context' => [
+            'post' => [
+                'summary' => 'Create a new house',
+                'requestBody' => [
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'spaciousness' => ['type' => 'integer'],
+                                    'line' => ['type' => 'integer'],
+                                    'bathroom' => ['type' => 'boolean'],
+                                    'shower' => ['type' => 'boolean'],
+                                ],
+                                'required' => ['spaciousness', 'line'],
+                            ],
+                        ],
+                    ],
+                ],
+                'responses' => [
+                    '201' => ['description' => 'House created successfully, returns ID'],
+                    '400' => ['description' => 'Invalid input: fields missing or wrong type'],
+                ],
+            ],
+            'get' => [
+                'summary' => 'Get house by ID',
+                'parameters' => [
+                    [
+                        'name' => 'id',
+                        'in' => 'path',
+                        'required' => true,
+                        'schema' => ['type' => 'integer'],
+                    ],
+                ],
+                'responses' => [
+                    '200' => [
+                        'description' => 'House details',
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'id' => ['type' => 'integer'],
+                                        'spaciousness' => ['type' => 'integer'],
+                                        'line' => ['type' => 'integer'],
+                                        'bathroom' => ['type' => 'boolean'],
+                                        'shower' => ['type' => 'boolean'],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    '404' => ['description' => 'House not found'],
+                ],
+            ],
+        ],
+    ]
+)]
 class House
 {
     #[ORM\Id]

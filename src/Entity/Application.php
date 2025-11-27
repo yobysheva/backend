@@ -4,10 +4,67 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Post;
+use App\Controller\Api\ApplicationController;
 use App\Repository\ApplicationRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ApplicationRepository::class)]
+#[ApiResource(
+    operations: [
+        new Post(
+            uriTemplate: '/create_application',
+            controller: ApplicationController::class.'::createApplication',
+        ),
+        new Get(
+            uriTemplate: '/applications/{id}',
+            controller: ApplicationController::class.'::getApplicationById',
+        ),
+    ],
+    extraProperties: [
+        'openapi_context' => [
+            'post' => [
+                'summary' => 'Create application',
+                'requestBody' => [
+                    'content' => [
+                        'application/json' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'user_id' => ['type' => 'integer'],
+                                    'house_id' => ['type' => 'integer'],
+                                ],
+                                'required' => ['user_id', 'house_id'],
+                            ],
+                        ],
+                    ],
+                ],
+                'responses' => [
+                    '201' => ['description' => 'Application created'],
+                    '400' => ['description' => 'Invalid input'],
+                    '404' => ['description' => 'User or House not found'],
+                ],
+            ],
+            'get' => [
+                'summary' => 'Get application by ID',
+                'parameters' => [
+                    [
+                        'name' => 'id',
+                        'in' => 'path',
+                        'required' => true,
+                        'schema' => ['type' => 'integer'],
+                    ],
+                ],
+                'responses' => [
+                    '200' => ['description' => 'Application details'],
+                    '404' => ['description' => 'Application not found'],
+                ],
+            ],
+        ],
+    ]
+)]
 class Application
 {
     #[ORM\Id]
