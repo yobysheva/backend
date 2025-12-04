@@ -108,4 +108,9 @@ class Application
 
         return $this;
     }
+
+    public function __toString(): string
+    {
+        return (string) $this->getApplicant() ?? (string) $this->getWantedHouse() ?? (string) $this->getId();
+    }
 }

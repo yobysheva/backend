@@ -5,6 +5,7 @@ declare(strict_types=1);
 use ApiPlatform\Symfony\Bundle\ApiPlatformBundle;
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle;
+use EasyCorp\Bundle\EasyAdminBundle\EasyAdminBundle;
 use Symfony\Bundle\DebugBundle\DebugBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\MakerBundle\MakerBundle;
@@ -14,6 +15,7 @@ use Symfony\Bundle\TwigBundle\TwigBundle;
 use Symfony\Bundle\WebProfilerBundle\WebProfilerBundle;
 use Symfony\UX\StimulusBundle\StimulusBundle;
 use Symfony\UX\Turbo\TurboBundle;
+use Symfony\UX\TwigComponent\TwigComponentBundle;
 use Twig\Extra\TwigExtraBundle\TwigExtraBundle;
 
 return [
@@ -30,4 +32,6 @@ return [
     MonologBundle::class => ['all' => true],
     MakerBundle::class => ['dev' => true],
     ApiPlatformBundle::class => ['all' => true],
+    EasyAdminBundle::class => ['all' => true],
+    TwigComponentBundle::class => ['all' => true],
 ];

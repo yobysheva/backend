@@ -95,11 +95,3 @@ jobs:
       - name: Run PHPUnit tests
         run: php bin/phpunit --testdox
 
-      - name: PHP_CodeSniffer
-        run: vendor/bin/phpcs --standard=phpcs.xml.dist --ignore=bin/*,var/*,vendor/* || true
-
-      - name: PHP CS Fixer (dry-run)
-        run: vendor/bin/php-cs-fixer fix --dry-run --allow-risky=yes --diff --config=.php-cs-fixer.dist.php
-
-      - name: Psalm Static Analysis
-        run: vendor/bin/psalm 

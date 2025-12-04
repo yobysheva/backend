@@ -51,9 +51,9 @@ final class UserController extends AbstractController
         );
         $user->setPassword($hashedPassword);
 
-        if (isset($data['role']) && is_string($data['role'])) {
-            $user->setRoles([$data['role']]);
-        }
+        // if (isset($data['role']) && is_string($data['role'])) {
+        //     $user->setRoles([$data['role']]);
+        // }
 
         try {
             $em->persist($user);
