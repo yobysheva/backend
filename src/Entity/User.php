@@ -227,4 +227,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+    public function __toString(): string
+    {
+        $rolesString = implode(', ', $this->getRoles());
+
+        return (string) $this->getPhone() ?? (string) $this->getName() ?? $rolesString ?? (string) $this->getId();
+    }
 }

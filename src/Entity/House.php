@@ -162,6 +162,11 @@ class House
         return $this->user_for_house;
     }
 
+    public function __toString(): string
+    {
+        return (string) $this->getSpaciousness() ?? (string) $this->getLine() ?? (string) $this->getId();
+    }
+
     public function setUserForHouse(?User $user_for_house): static
     {
         // unset the owning side of the relation if necessary

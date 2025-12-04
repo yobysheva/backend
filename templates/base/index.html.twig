@@ -14,7 +14,7 @@
     </style>
 </head>
 <body>
-    <h1>Список API эндпоинтов</h1>
+    <h1>Список эндпоинтов</h1>
     <table>
         <thead>
             <tr>
@@ -26,33 +26,53 @@
         <tbody>
             <tr>
                 <td>POST</td>
-                <td>/api/create_user</td>
+                <td><code>/api/user/create_user</code></td>
                 <td>Создать нового пользователя (name, phone, password, optional role)</td>
             </tr>
             <tr>
                 <td>GET</td>
-                <td>/api/users/{id}</td>
+                <td><code>/api/users/{id}</code></td>
                 <td>Получить данные пользователя по ID</td>
             </tr>
             <tr>
                 <td>POST</td>
-                <td>/api/create_house</td>
+                <td><code>/api/house/create_house</code></td>
                 <td>Создать новый дом (spaciousness, line, optional bathroom, shower)</td>
             </tr>
             <tr>
                 <td>GET</td>
-                <td>/api/houses/{id}</td>
+                <td><code>/api/houses/{id}</code></td>
                 <td>Получить данные дома по ID</td>
             </tr>
             <tr>
                 <td>POST</td>
-                <td>/api/create_application</td>
+                <td><code>/api/application/create_application</code></td>
                 <td>Создать заявку на дом (user_id, house_id)</td>
             </tr>
             <tr>
                 <td>GET</td>
-                <td>/api/applications/{id}</td>
+                <td><code>/api/applications/{id}</code></td>
                 <td>Получить заявку по ID</td>
+            </tr>
+            <tr>
+                <td>GET</td>
+                <td><code>/admin</code></td>
+                <td>Административная панель EasyAdmin (требуется ROLE_ADMIN)</td>
+            </tr>
+            <tr>
+                <td>GET</td>
+                <td><code>/api/docs</code></td>
+                <td>Документация API (OpenAPI)</td>
+            </tr>
+            <tr>
+                <td>GET</td>
+                <td><code>/login</code></td>
+                <td>Страница входа в систему</td>
+            </tr>
+            <tr>
+                <td>GET</td>
+                <td><code>/logout</code></td>
+                <td>Выход из системы</td>
             </tr>
         </tbody>
     </table>
