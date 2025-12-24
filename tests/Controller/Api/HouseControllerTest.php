@@ -3,7 +3,7 @@
 namespace App\Tests\Api;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\HouseRepository;
 use App\Entity\House;
 
 class HouseControllerTest extends WebTestCase
@@ -11,8 +11,7 @@ class HouseControllerTest extends WebTestCase
     public function testCreateHouseSuccessfully(): void
     {
         $client = static::createClient();
-        $container = static::getContainer();
-        $em = $container->get(EntityManagerInterface::class);
+        $houseRepository = static::getContainer()->get(HouseRepository::class);
 
         $requestData = [
             'spaciousness' => 2,
@@ -28,7 +27,7 @@ class HouseControllerTest extends WebTestCase
         $this->assertArrayHasKey('id', $responseData);
         $houseId = $responseData['id'];
 
-        $house = $em->getRepository(House::class)->find($houseId);
+        $house = $houseRepository->find($houseId);
         $this->assertNotNull($house);
         $this->assertSame($requestData['spaciousness'], $house->getSpaciousness());
         $this->assertSame($requestData['line'], $house->getLine());

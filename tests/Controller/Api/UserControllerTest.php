@@ -4,7 +4,7 @@ namespace App\Tests\Api;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use App\Entity\User;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\UserRepository;
 
 class UserControllerTest extends WebTestCase
 {
@@ -12,7 +12,6 @@ class UserControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $container = static::getContainer();
-        $em = $container->get(EntityManagerInterface::class);
 
         $client->request('POST', '/api/create_user', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
             'name' => 'Alice',
@@ -23,7 +22,9 @@ class UserControllerTest extends WebTestCase
         $response = json_decode($client->getResponse()->getContent(), true);
         $this->assertArrayHasKey('id', $response);
 
-        $user = $em->getRepository(User::class)->find($response['id']);
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $user = $userRepository->find($response['id']);
+
         $this->assertNotNull($user);
         $this->assertSame('Alice', $user->getName());
         $this->assertSame('1234567890', $user->getPhone());
@@ -45,14 +46,13 @@ class UserControllerTest extends WebTestCase
     {
         $client = static::createClient();
         $container = static::getContainer();
-        $em = $container->get(EntityManagerInterface::class);
+        $userRepository = static::getContainer()->get(UserRepository::class);
 
         $user = new User();
         $user->setName('Bob');
         $user->setPhone('0987654321');
         
-        $em->persist($user);
-        $em->flush();
+        $userRepository->save($user);
         $userId = $user->getId();
 
         $client->request('GET', "/api/users/$userId");

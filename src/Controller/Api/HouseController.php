@@ -3,7 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\House;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\HouseRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Attribute\Route;
 final class HouseController extends AbstractController
 {
     #[Route('/api/create_house', name: 'api_create_house', methods: ['POST'])]
-    public function createHouse(Request $request, EntityManagerInterface $em): JsonResponse
+    public function createHouse(Request $request, HouseRepository $houseRepository): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 
@@ -39,16 +39,15 @@ final class HouseController extends AbstractController
             ->setBathroom($bathroom)
             ->setShower($shower);
 
-        $em->persist($house);
-        $em->flush();
+        $houseRepository->save($house);
 
         return new JsonResponse(['id' => $house->getId()], 201);
     }
 
     #[Route('/api/houses/{id}', name: 'get_house_by_id', methods: ['GET'])]
-    public function getHouseById(int $id, EntityManagerInterface $em): JsonResponse
+    public function getHouseById(int $id, HouseRepository $houseRepository): JsonResponse
     {
-        $house = $em->getRepository(House::class)->find($id);
+        $house = $houseRepository->find($id);
 
         if (!$house) {
             return new JsonResponse(['error' => 'House not found'], 404);

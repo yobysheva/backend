@@ -3,10 +3,9 @@
 namespace App\Tests\Api;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use App\Entity\Application;
-use Doctrine\ORM\EntityManagerInterface;
-use App\Entity\User;
-use App\Entity\House;
+use App\Repository\UserRepository;
+use App\Repository\HouseRepository;
+use App\Repository\ApplicationRepository;
 
 class ApplicationControllerTest extends WebTestCase
 {
@@ -15,8 +14,10 @@ class ApplicationControllerTest extends WebTestCase
         $client = static::createClient();
         $container = static::getContainer();
 
-        /** @var EntityManagerInterface $em */
-        $em = $container->get(EntityManagerInterface::class);
+        
+        $userRepository = $container->get(UserRepository::class);
+        $houseRepository = $container->get(HouseRepository::class);
+        $applicationRepository = $container->get(ApplicationRepository::class);
 
         $userData = ['name' => 'Charlie', 'phone' => '5555555555'];
         $client->request('POST', '/api/create_user', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode($userData));
@@ -38,11 +39,9 @@ class ApplicationControllerTest extends WebTestCase
         $this->assertArrayHasKey('application_id', $responseData);
         $applicationId = $responseData['application_id'];
 
-        $em->clear();
-
-        $user = $em->getRepository(User::class)->find($userId);
-        $house = $em->getRepository(House::class)->find($houseId);
-        $application = $em->getRepository(Application::class)->find($applicationId);
+        $application = $applicationRepository->find($applicationId);
+        $user = $userRepository->find($userId);
+        $house = $houseRepository->find($houseId);
 
         $this->assertNotNull($application, 'Application should exist in DB');
         $this->assertNotNull($application->getApplicant(), 'Application applicant should not be null');

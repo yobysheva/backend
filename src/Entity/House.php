@@ -90,12 +90,12 @@ class House
     {
         // unset the owning side of the relation if necessary
         if ($user_for_house === null && $this->user_for_house !== null) {
-            $this->user_for_house->setcurrentHouse(null);
+            $this->user_for_house->setCurrentHouse(null);
         }
 
         // set the owning side of the relation if necessary
-        if ($user_for_house !== null && $user_for_house->getcurrentHouse() !== $this) {
-            $user_for_house->setcurrentHouse($this);
+        if ($user_for_house !== null && $user_for_house->getCurrentHouse() !== $this) {
+            $user_for_house->setCurrentHouse($this);
         }
 
         $this->user_for_house = $user_for_house;

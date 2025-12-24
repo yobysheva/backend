@@ -95,12 +95,12 @@ class User
         return $this;
     }
 
-    public function getcurrentHouse(): ?House
+    public function getCurrentHouse(): ?House
     {
         return $this->currentHouse;
     }
 
-    public function setcurrentHouse(?House $currentHouse): static
+    public function setCurrentHouse(?House $currentHouse): static
     {
         $this->currentHouse = $currentHouse;
 

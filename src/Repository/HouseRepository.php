@@ -16,6 +16,26 @@ class HouseRepository extends ServiceEntityRepository
         parent::__construct($registry, House::class);
     }
 
+    public function save(House $house, bool $flush = true): void
+    {
+        $em = $this->getEntityManager();
+        $em->persist($house);
+
+        if ($flush) {
+            $em->flush();
+        }
+    }
+
+    public function remove(House $house, bool $flush = true): void
+    {
+        $em = $this->getEntityManager();
+        $em->remove($house);
+
+        if ($flush) {
+            $em->flush();
+        }
+    }
+
     //    /**
     //     * @return House[] Returns an array of House objects
     //     */
