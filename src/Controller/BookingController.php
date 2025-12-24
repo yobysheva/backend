@@ -6,22 +6,14 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
-use App\Services\ServicesCSV;
+use App\Services\BookingServiceCSV;
 
-final class Controller extends AbstractController
+final class BookingController extends AbstractController
 {
-    private ServicesCSV $csvService;
+    private BookingServiceCSV $csvService;
 
-    public function __construct(ServicesCSV $csvService) {
+    public function __construct(BookingServiceCSV $csvService) {
     $this->csvService = $csvService;
-    }
-
-
-    #[Route('/', name: 'houses', methods:['GET'])]
-    public function listHouses(): Response
-    {
-        $houses = $this->csvService->getAllHouses();
-        return $this->json($houses);
     }
 
 

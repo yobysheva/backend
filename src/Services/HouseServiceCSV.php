@@ -2,13 +2,17 @@
 
 namespace App\Services;
 
-class ServicesCSV{
-    public function getAllHouses() : array{
-        $filePath = __DIR__ . '/houses.csv';
+class HouseServiceCSV{
+    private string $houseFilePath;
 
-        $file = fopen($filePath, 'r');;
+    public function __construct(string $houseFilePath)
+    {
+        $this->houseFilePath = $houseFilePath;
+    }
+    public function getAllHouses() : array{
+        $file = fopen($this->houseFilePath, 'r');
         if (!$file) {
-            throw new \RuntimeException("Can not open file $filePath for reading.");
+            throw new \RuntimeException("Can not open file $this->houseFilePath for reading.");
     
         }
 
