@@ -1,0 +1,105 @@
+name: Tests
+
+
+on:
+ push:
+   branches: [ lab1, lab2, lab3, lab4, lab5, lab6 ]
+ pull_request:
+   branches:  [ lab1, lab2, lab3, lab4, lab5, lab6 ]
+
+
+jobs:
+ tests:
+   name: PHPUnit Tests
+   runs-on: ubuntu-latest
+
+
+   env:
+     APP_ENV: test
+     APP_SECRET: test_secret_key_for_github_actions
+     APP_DEBUG: 0
+     DATABASE_URL: "postgresql://test_db:test_password@localhost:5432/test_db?serverVersion=16&charset=utf8"
+     MESSENGER_TRANSPORT_DSN: "doctrine://default?auto_setup=0"
+     MAILER_DSN: "null://null"
+     DEFAULT_URI: "http://localhost"
+
+
+   services:
+     postgres:
+       image: postgres:16-alpine
+       env:
+         POSTGRES_DB: test_db
+         POSTGRES_USER: test_db
+         POSTGRES_PASSWORD: test_password
+       ports:
+         - 5432:5432
+       options: >-
+         --health-cmd pg_isready
+         --health-interval 10s
+         --health-timeout 5s
+         --health-retries 5
+
+
+   steps:
+     - name: Checkout code
+       uses: actions/checkout@v4
+
+     - name: Setup PHP
+       uses: shivammathur/setup-php@v2
+       with:
+         php-version: '8.2'
+         extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_pgsql, dom, filter, gd, json
+         coverage: none
+         tools: composer:v2
+
+
+     - name: Get Composer Cache Directory
+       id: composer-cache
+       run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+
+     - name: Cache Composer dependencies
+       uses: actions/cache@v3
+       with:
+         path: ${{ steps.composer-cache.outputs.dir }}
+         key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+         restore-keys: ${{ runner.os }}-composer-
+
+
+     - name: Create .env file
+       run: |
+        echo "APP_ENV=test" > .env
+        echo "APP_SECRET=test_secret_key_for_github_actions" >> .env
+        echo "DATABASE_URL=postgresql://test_user:test_password@localhost:5432/test_db?serverVersion=16&charset=utf8" >> .env
+
+
+     - name: Install dependencies
+       run: composer install --prefer-dist --no-progress --no-interaction --optimize-autoloader
+    
+
+     - name: Wait for PostgreSQL
+       run: |
+          until pg_isready -h localhost -p 5432 -U test_db; do
+            echo "Waiting for database..."
+            sleep 2
+          done
+       env:
+         PGPASSWORD: test_password
+
+
+     - name: Create test database
+       run: |
+          psql -h localhost -U test_db -d test_db -c "CREATE DATABASE test_db_test;"
+       env:
+         PGPASSWORD: test_password
+
+
+     - name: Clear cache
+       run: php bin/console cache:clear --env=test
+
+     - name: Run migrations
+       run: php bin/console doctrine:migrations:migrate --no-interaction --env=test
+
+
+     - name: Run PHPUnit tests
+       run: php bin/phpunit --testdox
